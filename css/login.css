@@ -1,0 +1,346 @@
+:root {
+    --primary-color: #152AB3;
+    --primary-light: #2a3fd9;
+    --primary-dark: #0e1f8c;
+    --secondary-color: #f4f7f6;
+    --text-dark: #333;
+    --text-light: #666;
+    --white: #fff;
+    --error: #ff4444;
+    --success: #00C851;
+    --shadow: 0 10px 40px rgba(0,0,0,0.1);
+    --input-bg: #ffffff;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+}
+
+/* Tema Escuro para Login */
+[data-theme="escuro"] {
+    --primary-color: #4a6cf7;
+    --primary-light: #6380f9;
+    --primary-dark: #2a3fd9;
+    --secondary-color: #1a1a1a;
+    --text-dark: #e0e0e0;
+    --text-light: #a0a0a0;
+    --white: #2d2d2d;
+    --shadow: 0 10px 40px rgba(0,0,0,0.5);
+    --input-bg: #404040;
+    --card-bg: #363636;
+    --border-color: #444444;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    transition: var(--transition);
+    padding: 20px;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 450px;
+}
+
+.login-box {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: var(--shadow);
+    animation: slideUp 0.5s ease;
+    border: 1px solid var(--border-color);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header i {
+    font-size: 50px;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.login-header h1 {
+    color: var(--text-dark);
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.login-header p {
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+/* Theme Toggle para Login */
+.theme-toggle-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.theme-toggle-login {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-light);
+    padding: 10px;
+    border-radius: 50%;
+    transition: var(--transition);
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle-login:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    transform: rotate(15deg);
+}
+
+.theme-toggle-login .fa-sun {
+    display: none;
+}
+
+[data-theme="escuro"] .theme-toggle-login .fa-sun {
+    display: inline;
+}
+
+[data-theme="escuro"] .theme-toggle-login .fa-moon {
+    display: none;
+}
+
+.tab-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    background: var(--secondary-color);
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+#login-form, #register-form {
+    display: none;
+}
+
+#login-form.active, #register-form.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group i:first-child {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    font-size: 18px;
+    z-index: 1;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px 45px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--input-bg);
+    color: var(--text-dark);
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: var(--card-bg);
+}
+
+.input-group input::placeholder {
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-light);
+    z-index: 2;
+    transition: var(--transition);
+}
+
+.toggle-password:hover {
+    color: var(--primary-color);
+}
+
+.btn-login, .btn-register {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: var(--primary-color);
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-login:hover, .btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(21, 42, 179, 0.3);
+}
+
+[data-theme="escuro"] .btn-login:hover,
+[data-theme="escuro"] .btn-register:hover {
+    box-shadow: 0 5px 20px rgba(74, 108, 247, 0.3);
+}
+
+.btn-login i, .btn-register i {
+    font-size: 18px;
+}
+
+#message-container {
+    margin-top: 20px;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+    animation: slideIn 0.3s ease;
+}
+
+.message.success {
+    background: rgba(0, 200, 81, 0.1);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.message.error {
+    background: rgba(255, 68, 68, 0.1);
+    color: var(--error);
+    border: 1px solid var(--error);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Footer com link para alternar tema (opcional) */
+.login-footer {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 12px;
+}
+
+.login-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+    .login-box {
+        padding: 30px 20px;
+    }
+
+    .login-header i {
+        font-size: 40px;
+    }
+
+    .login-header h1 {
+        font-size: 20px;
+    }
+
+    .theme-toggle-container {
+        top: 10px;
+        right: 10px;
+    }
+
+    .theme-toggle-login {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+}
