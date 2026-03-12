@@ -8,6 +8,7 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 ?>
     <link rel="stylesheet" href="css/atividades.css">
+    <link rel="icon" href="ico/relogio.png">
 </head>
 <body>
     <main class="atividades-container">

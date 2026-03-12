@@ -15,10 +15,10 @@ $tema = isset($_COOKIE['tema_preferido']) ? $_COOKIE['tema_preferido'] : 'claro'
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Controle de Horas</title>
-    <link rel="icon" type="image/x-icon" href="icon/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/login.css">
+    <link rel="icon" href="ico/relogio.png">
 </head>
 <body>
     <div class="theme-toggle-container">

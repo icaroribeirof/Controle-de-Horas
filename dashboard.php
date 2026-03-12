@@ -10,6 +10,7 @@ if (!isset($_SESSION['usuario_id'])) {
 // Buscar dados do dashboard via API (será carregado via JavaScript)
 ?>
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="icon" href="ico/relogio.png">
 </head>
 <body>
     <main class="dashboard-container">
