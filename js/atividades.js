@@ -1,5 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
-    loadAtividades();
+    // Preencher o filtro de data com o dia atual
+    const filtroData = document.getElementById('filtro-data');
+    const dataAtual = getCurrentDate();
+    filtroData.value = dataAtual;
+    
+    // Carregar atividades com a data atual como filtro
+    loadAtividades(1, { data: dataAtual });
     setupEventListeners();
     setupAutoFilters();
 });
@@ -7,7 +13,17 @@ document.addEventListener('DOMContentLoaded', function() {
 let currentPage = 1;
 let totalPages = 1;
 let currentFilters = {};
+let currentSort = 'data_inicio';
 let deleteId = null;
+
+// Obter data atual no formato YYYY-MM-DD (corrigido para fuso horário local)
+function getCurrentDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
 function setupEventListeners() {
     // Nova atividade
@@ -36,6 +52,12 @@ function setupEventListeners() {
     document.getElementById('hora_inicio').addEventListener('change', validateHours);
     document.getElementById('hora_fim').addEventListener('change', validateHours);
 
+    // Dropdown de ordenação
+    document.getElementById('filtro-ordenacao').addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        loadAtividades(1, currentFilters);
+    });
+
     // Modal de confirmação
     document.getElementById('btn-confirmar-exclusao').addEventListener('click', confirmDelete);
     document.getElementById('btn-cancelar-exclusao').addEventListener('click', closeConfirmModal);
@@ -51,7 +73,7 @@ function setupEventListeners() {
 
 function setupAutoFilters() {
     // Filtros automáticos ao digitar
-    const filterInputs = ['filtro-data-inicio', 'filtro-data-fim', 'filtro-cliente'];
+    const filterInputs = ['filtro-data', 'filtro-atividade', 'filtro-cliente'];
     
     filterInputs.forEach(id => {
         const input = document.getElementById(id);
@@ -61,7 +83,7 @@ function setupAutoFilters() {
                 clearTimeout(timeout);
                 timeout = setTimeout(() => {
                     applyFilters();
-                }, 500); // Aguarda 500ms após parar de digitar
+                }, 500);
             });
         }
     });
@@ -69,11 +91,12 @@ function setupAutoFilters() {
 
 async function loadAtividades(page = 1, filters = {}) {
     const tbody = document.getElementById('atividades-tbody');
-    tbody.innerHTML = '<tr><td colspan="7" class="loading-cell"><div class="loading-spinner"></div></td></tr>';
+    tbody.innerHTML = '保持<td colspan="7" class="loading-cell"><div class="loading-spinner"></div>';
 
     try {
         const queryParams = new URLSearchParams({
             page,
+            ordenacao: currentSort,
             ...filters
         });
 
@@ -83,6 +106,7 @@ async function loadAtividades(page = 1, filters = {}) {
         if (data.success) {
             renderAtividades(data.atividades);
             renderPagination(data.pagination);
+            displayTotalHoras(data.total_duracao_minutos);
             currentPage = data.pagination.current_page;
             totalPages = data.pagination.total_pages;
         } else {
@@ -98,7 +122,7 @@ function renderAtividades(atividades) {
     const tbody = document.getElementById('atividades-tbody');
 
     if (!atividades || atividades.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">Nenhuma atividade encontrada</td></tr>';
+        tbody.innerHTML = '保持<td colspan="7" class="loading-cell">Nenhuma atividade encontrada';
         return;
     }
 
@@ -117,8 +141,8 @@ function renderAtividades(atividades) {
                 <button class="acao-btn excluir" onclick="openDeleteModal(${atividade.id})" title="Excluir">
                     <i class="fas fa-trash"></i>
                 </button>
-            </td>
-        </tr>
+              </td>
+         </tr>
     `).join('');
 }
 
@@ -180,11 +204,11 @@ function openModal(atividade = null) {
         document.getElementById('data_execucao').value = atividade.data_execucao || '';
         document.getElementById('hora_inicio').value = atividade.hora_inicio ? atividade.hora_inicio.substr(0,5) : '';
         document.getElementById('hora_fim').value = atividade.hora_fim ? atividade.hora_fim.substr(0,5) : '';
+        document.getElementById('observacoes').value = atividade.observacoes || '';
     } else {
         title.textContent = 'Nova Atividade';
         form.reset();
-        // Preencher data atual
-        const today = new Date().toISOString().split('T')[0];
+        const today = getCurrentDate();
         document.getElementById('data_execucao').value = today;
     }
 
@@ -209,7 +233,8 @@ async function handleSubmit(e) {
         nome_cliente: document.getElementById('nome_cliente').value,
         data_execucao: document.getElementById('data_execucao').value,
         hora_inicio: document.getElementById('hora_inicio').value,
-        hora_fim: document.getElementById('hora_fim').value
+        hora_fim: document.getElementById('hora_fim').value,
+        observacoes: document.getElementById('observacoes').value
     };
 
     try {
@@ -304,8 +329,8 @@ async function confirmDelete() {
 
 function applyFilters() {
     currentFilters = {
-        data_inicio: document.getElementById('filtro-data-inicio').value,
-        data_fim: document.getElementById('filtro-data-fim').value,
+        data: document.getElementById('filtro-data').value,
+        atividade: document.getElementById('filtro-atividade').value,
         cliente: document.getElementById('filtro-cliente').value
     };
 
@@ -316,26 +341,68 @@ function applyFilters() {
         }
     });
 
+    // Resetar para página 1 e recarregar com ordenação mantida
     loadAtividades(1, currentFilters);
 }
 
 function clearFilters() {
-    document.getElementById('filtro-data-inicio').value = '';
-    document.getElementById('filtro-data-fim').value = '';
+    const dataAtual = getCurrentDate();
+    
+    // Limpar campos de filtro (atividade e cliente)
+    document.getElementById('filtro-atividade').value = '';
     document.getElementById('filtro-cliente').value = '';
-    currentFilters = {};
-    loadAtividades(1);
+    
+    // Manter a data atual no campo de data
+    document.getElementById('filtro-data').value = dataAtual;
+    
+    // Resetar ordenação para o padrão
+    const ordenacaoSelect = document.getElementById('filtro-ordenacao');
+    ordenacaoSelect.value = 'data_inicio';
+    currentSort = 'data_inicio';
+    
+    // Definir filtros apenas com a data atual
+    currentFilters = {
+        data: dataAtual
+    };
+    
+    // Recarregar atividades com a data atual
+    loadAtividades(1, currentFilters);
 }
 
 function calculateDuration(start, end) {
     const startTime = new Date(`2000-01-01T${start}`);
     const endTime = new Date(`2000-01-01T${end}`);
-    const diff = (endTime - startTime) / (1000 * 60); // minutos
+    const diff = (endTime - startTime) / (1000 * 60);
 
     const hours = Math.floor(diff / 60);
     const minutes = diff % 60;
 
     return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+}
+
+function displayTotalHoras(totalMinutos) {
+    const tfoot = document.getElementById('atividades-tfoot');
+    const totalHorasElement = document.getElementById('total-horas');
+    
+    if (totalMinutos && totalMinutos > 0) {
+        const hours = Math.floor(totalMinutos / 60);
+        const minutes = totalMinutos % 60;
+        
+        let totalText = '';
+        if (hours > 0) {
+            totalText = `${hours}h`;
+            if (minutes > 0) {
+                totalText += ` ${minutes}m`;
+            }
+        } else {
+            totalText = `${minutes}m`;
+        }
+        
+        totalHorasElement.textContent = totalText;
+        tfoot.querySelector('tr').style.display = '';
+    } else {
+        tfoot.querySelector('tr').style.display = 'none';
+    }
 }
 
 function formatDate(date) {
@@ -349,7 +416,6 @@ function escapeHtml(text) {
 }
 
 function showNotification(message, type = 'success') {
-    // Remover notificação anterior se existir
     const oldNotification = document.querySelector('.notification');
     if (oldNotification) {
         oldNotification.remove();
@@ -364,12 +430,10 @@ function showNotification(message, type = 'success') {
     
     document.body.appendChild(notification);
     
-    // Mostrar com animação
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
     
-    // Remover após 3 segundos
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
@@ -380,7 +444,6 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-// Tornar funções globais para acesso via onclick
 window.editAtividade = editAtividade;
 window.openDeleteModal = openDeleteModal;
 window.changePage = changePage;

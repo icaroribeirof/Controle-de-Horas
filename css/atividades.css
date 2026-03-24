@@ -281,6 +281,23 @@ body {
     border-color: var(--primary-color);
 }
 
+.filtro-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-dark);
+    transition: var(--transition);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.filtro-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
 .btn-filtrar, .btn-limpar {
     padding: 0.75rem 1rem;
     border: none;
@@ -803,4 +820,24 @@ body {
         font-size: 0.8rem;
         padding: 6px 10px;
     }
+}
+
+/* Estilos para total de horas */
+.atividades-table tfoot tr {
+    background: var(--table-header-bg);
+    font-weight: 600;
+    border-top: 2px solid var(--border-color);
+}
+
+.atividades-table tfoot .total-label {
+    text-align: right;
+    padding: 1rem;
+    color: var(--text-light);
+}
+
+.atividades-table tfoot .total-value {
+    padding: 1rem;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 700;
 }

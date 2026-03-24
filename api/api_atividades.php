@@ -16,7 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
     try {
         $query = "SELECT id, nome_atividade, nome_cliente, data_execucao, 
                          DATE_FORMAT(hora_inicio, '%H:%i') as hora_inicio,
-                         DATE_FORMAT(hora_fim, '%H:%i') as hora_fim
+                         DATE_FORMAT(hora_fim, '%H:%i') as hora_fim,
+                         observacoes
                   FROM atividades 
                   WHERE id = :id AND usuario_id = :usuario_id";
         $stmt = $db->prepare($query);
@@ -71,8 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if (empty($data['id'])) {
             // Inserir nova atividade
-            $query = "INSERT INTO atividades (usuario_id, nome_atividade, nome_cliente, data_execucao, hora_inicio, hora_fim) 
-                      VALUES (:usuario_id, :nome_atividade, :nome_cliente, :data_execucao, :hora_inicio, :hora_fim)";
+            $query = "INSERT INTO atividades (usuario_id, nome_atividade, nome_cliente, data_execucao, hora_inicio, hora_fim, observacoes) 
+                      VALUES (:usuario_id, :nome_atividade, :nome_cliente, :data_execucao, :hora_inicio, :hora_fim, :observacoes)";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':usuario_id', $usuario_id);
         } else {
@@ -94,7 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       nome_cliente = :nome_cliente,
                       data_execucao = :data_execucao,
                       hora_inicio = :hora_inicio,
-                      hora_fim = :hora_fim
+                      hora_fim = :hora_fim,
+                      observacoes = :observacoes
                       WHERE id = :id AND usuario_id = :usuario_id";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':id', $data['id']);
@@ -106,6 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':data_execucao', $data['data_execucao']);
         $stmt->bindParam(':hora_inicio', $data['hora_inicio']);
         $stmt->bindParam(':hora_fim', $data['hora_fim']);
+        $observacoes = isset($data['observacoes']) ? $data['observacoes'] : null;
+        $stmt->bindParam(':observacoes', $observacoes);
 
         if ($stmt->execute()) {
             $mensagem = empty($data['id']) ? 'Atividade cadastrada com sucesso' : 'Atividade atualizada com sucesso';
@@ -161,6 +165,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $ordenacao = isset($_GET['ordenacao']) ? $_GET['ordenacao'] : 'data_inicio';
+        
         $limit = 10;
         $offset = ($page - 1) * $limit;
 
@@ -168,20 +174,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $params = [':usuario_id' => $usuario_id];
 
         // Aplicar filtros
-        if (!empty($_GET['data_inicio'])) {
-            $where[] = "a.data_execucao >= :data_inicio";
-            $params[':data_inicio'] = $_GET['data_inicio'];
+        // Filtro de data (se não informado, mostra apenas o dia atual)
+        if (!empty($_GET['data'])) {
+            $where[] = "a.data_execucao = :data";
+            $params[':data'] = $_GET['data'];
+        } else {
+            // Padrão: mostrar apenas atividades do dia atual
+            $data_atual = date('Y-m-d');
+            $where[] = "a.data_execucao = :data_atual";
+            $params[':data_atual'] = $data_atual;
         }
-        if (!empty($_GET['data_fim'])) {
-            $where[] = "a.data_execucao <= :data_fim";
-            $params[':data_fim'] = $_GET['data_fim'];
+        
+        // Filtro de atividade
+        if (!empty($_GET['atividade'])) {
+            $where[] = "a.nome_atividade LIKE :atividade";
+            $params[':atividade'] = '%' . $_GET['atividade'] . '%';
         }
+        
+        // Filtro de cliente
         if (!empty($_GET['cliente'])) {
             $where[] = "a.nome_cliente LIKE :cliente";
             $params[':cliente'] = '%' . $_GET['cliente'] . '%';
         }
 
         $where_clause = implode(' AND ', $where);
+
+        // ORDENAÇÃO
+        $order_clause = "";
+        
+        switch($ordenacao) {
+            case 'atividade':
+                $order_clause = "ORDER BY a.nome_atividade ASC";
+                break;
+            case 'cliente':
+                $order_clause = "ORDER BY a.nome_cliente ASC";
+                break;
+            case 'data':
+                $order_clause = "ORDER BY a.data_execucao ASC";
+                break;
+            case 'hora_inicio':
+                $order_clause = "ORDER BY a.data_execucao ASC, a.hora_inicio ASC";
+                break;
+            case 'hora_fim':
+                $order_clause = "ORDER BY a.data_execucao ASC, a.hora_fim DESC";
+                break;
+            case 'data_inicio':
+            default:
+                $order_clause = "ORDER BY a.data_execucao ASC, a.hora_inicio ASC";
+                break;
+        }
 
         // Contar total de registros
         $count_query = "SELECT COUNT(*) as total FROM atividades a WHERE $where_clause";
@@ -193,6 +234,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
         $total_pages = ceil($total_records / $limit);
 
+        // Calcular total de duração
+        $total_query = "SELECT COALESCE(SUM(TIMESTAMPDIFF(MINUTE, a.hora_inicio, a.hora_fim)), 0) as total_minutos
+                       FROM atividades a
+                       WHERE $where_clause";
+        $total_stmt = $db->prepare($total_query);
+        foreach ($params as $key => $value) {
+            $total_stmt->bindValue($key, $value);
+        }
+        $total_stmt->execute();
+        $total_duracao = $total_stmt->fetch(PDO::FETCH_ASSOC)['total_minutos'];
+
         // Buscar atividades
         $query = "SELECT a.id, a.nome_atividade, a.nome_cliente, a.data_execucao, 
                          DATE_FORMAT(a.hora_inicio, '%H:%i') as hora_inicio,
@@ -200,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                          TIMESTAMPDIFF(MINUTE, a.hora_inicio, a.hora_fim) as duracao_minutos
                   FROM atividades a
                   WHERE $where_clause 
-                  ORDER BY a.data_execucao DESC, a.hora_inicio DESC 
+                  $order_clause
                   LIMIT :limit OFFSET :offset";
         
         $stmt = $db->prepare($query);
@@ -216,6 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         echo json_encode([
             'success' => true,
             'atividades' => $atividades,
+            'total_duracao_minutos' => (int)$total_duracao,
             'pagination' => [
                 'current_page' => $page,
                 'total_pages' => $total_pages,

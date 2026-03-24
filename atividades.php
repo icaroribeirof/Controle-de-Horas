@@ -6,9 +6,12 @@ if (!isset($_SESSION['usuario_id'])) {
     header('Location: index.php');
     exit;
 }
+
+// Buscar data atual para o filtro padrão
+$data_atual = date('Y-m-d');
 ?>
     <link rel="stylesheet" href="css/atividades.css">
-    <link rel="icon" href="ico/relogio.png">
+    <link rel="shortcut icon" href="ico/relogio.png">
 </head>
 <body>
     <main class="atividades-container">
@@ -76,6 +79,17 @@ if (!isset($_SESSION['usuario_id'])) {
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="observacoes">
+                            <i class="fas fa-sticky-note"></i>
+                            Observações
+                        </label>
+                        <textarea id="observacoes" 
+                                  placeholder="Adicione anotações sobre a atividade (opcional)"
+                                  rows="3"
+                                  autocomplete="off"></textarea>
+                    </div>
+
                     <div class="form-actions">
                         <button type="button" class="btn-cancelar" id="btn-cancelar">
                             Cancelar
@@ -122,18 +136,18 @@ if (!isset($_SESSION['usuario_id'])) {
         <div class="filtros-container">
             <div class="filtros-grid">
                 <div class="filtro-group">
-                    <label for="filtro-data-inicio">
+                    <label for="filtro-data">
                         <i class="fas fa-calendar-alt"></i>
-                        Data Início
+                        Data
                     </label>
-                    <input type="date" id="filtro-data-inicio" placeholder="Data inicial">
+                    <input type="date" id="filtro-data" placeholder="Selecione uma data">
                 </div>
                 <div class="filtro-group">
-                    <label for="filtro-data-fim">
-                        <i class="fas fa-calendar-check"></i>
-                        Data Fim
+                    <label for="filtro-atividade">
+                        <i class="fas fa-tag"></i>
+                        Atividade
                     </label>
-                    <input type="date" id="filtro-data-fim" placeholder="Data final">
+                    <input type="text" id="filtro-atividade" placeholder="Buscar atividade..." autocomplete="off">
                 </div>
                 <div class="filtro-group">
                     <label for="filtro-cliente">
@@ -141,6 +155,20 @@ if (!isset($_SESSION['usuario_id'])) {
                         Cliente
                     </label>
                     <input type="text" id="filtro-cliente" placeholder="Buscar cliente..." autocomplete="off">
+                </div>
+                <div class="filtro-group">
+                    <label for="filtro-ordenacao">
+                        <i class="fas fa-sort"></i>
+                        Ordenar por
+                    </label>
+                    <select id="filtro-ordenacao">
+                        <option value="data_inicio">Data e Hora Início</option>
+                        <option value="atividade">Atividade</option>
+                        <option value="cliente">Cliente</option>
+                        <option value="data">Data</option>
+                        <option value="hora_inicio">Hora Início</option>
+                        <option value="hora_fim">Hora Fim</option>
+                    </select>
                 </div>
                 <div class="filtro-group">
                     <button class="btn-limpar" id="btn-limpar-filtros">
@@ -151,7 +179,7 @@ if (!isset($_SESSION['usuario_id'])) {
             </div>
             <div class="filtros-hint">
                 <i class="fas fa-info-circle"></i>
-                <span>Os filtros são aplicados automaticamente enquanto você digita</span>
+                <span>Mostrando atividades do dia atual. Utilize os filtros para visualizar outros períodos</span>
             </div>
         </div>
 
@@ -176,6 +204,13 @@ if (!isset($_SESSION['usuario_id'])) {
                         </td>
                     </tr>
                 </tbody>
+                <tfoot id="atividades-tfoot">
+                    <tr style="display: none;">
+                        <td colspan="5" class="total-label">Total de Horas</td>
+                        <td id="total-horas" class="total-value">0h</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 
