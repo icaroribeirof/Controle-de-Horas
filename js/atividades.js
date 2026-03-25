@@ -196,6 +196,10 @@ function openModal(atividade = null) {
     const form = document.getElementById('atividade-form');
     const title = document.getElementById('modal-title');
 
+    // 🐛 FIX: SEMPRE limpar o ID primeiro para evitar que uma atividade substitua outra
+    // Isso garante que um novo modal para criar atividade não tenha ID residual de edição anterior
+    document.getElementById('atividade-id').value = '';
+
     if (atividade) {
         title.textContent = 'Editar Atividade';
         document.getElementById('atividade-id').value = atividade.id || '';
@@ -218,6 +222,8 @@ function openModal(atividade = null) {
 function closeModal() {
     document.getElementById('atividade-modal').classList.remove('show');
     document.getElementById('atividade-form').reset();
+    // 🐛 FIX: Limpar ID ao fechar modal também
+    document.getElementById('atividade-id').value = '';
 }
 
 async function handleSubmit(e) {
