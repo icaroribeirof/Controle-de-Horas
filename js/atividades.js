@@ -412,7 +412,9 @@ function displayTotalHoras(totalMinutos) {
 }
 
 function formatDate(date) {
-    return new Date(date).toLocaleDateString('pt-BR');
+    // Corrigir bug de fuso horário: tratar a data como local, não UTC
+    const [year, month, day] = date.split('-');
+    return new Date(year, month - 1, day).toLocaleDateString('pt-BR');
 }
 
 function escapeHtml(text) {
