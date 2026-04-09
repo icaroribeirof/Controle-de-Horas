@@ -1,7 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardData();
-    setupThemeToggle();
     setupMobileMenu();
+    
+    // Escutar mudanças de tema disparadas pelo menu.php
+    window.addEventListener('tema-alterado', function(e) {
+        // Recarregar dados para atualizar cores dos gráficos se necessário
+        // Mas sem recarregar a página inteira
+        reloadChartsWithNewTheme();
+    });
+    
+    // Também escutar mudanças no localStorage (para sincronizar entre abas)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'tema_preferido') {
+            reloadChartsWithNewTheme();
+        }
+    });
 });
 
 async function loadDashboardData() {
@@ -41,22 +54,36 @@ function formatHours(hours) {
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
+// Variáveis globais para os gráficos
+let activitiesChart = null;
+let hoursChart = null;
+
 function updateCharts(chartData) {
     // Destruir gráficos existentes se houver
-    Chart.helpers.each(Chart.instances, function(instance) {
-        instance.destroy();
-    });
+    if (activitiesChart) {
+        activitiesChart.destroy();
+    }
+    if (hoursChart) {
+        hoursChart.destroy();
+    }
 
-    // Gráfico de atividades
+    // Obter as cores baseadas no tema atual
+    const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'escuro';
+    const primaryColor = isDarkTheme ? '#4a6cf7' : '#152AB3';
+    const bgColor = isDarkTheme ? 'rgba(74, 108, 247, 0.1)' : 'rgba(21, 42, 179, 0.1)';
+    const gridColor = isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+    const textColor = isDarkTheme ? '#e0e0e0' : '#666';
+
+    // Gráfico de atividades (barras)
     const activitiesCtx = document.getElementById('activitiesChart').getContext('2d');
-    new Chart(activitiesCtx, {
+    activitiesChart = new Chart(activitiesCtx, {
         type: 'bar',
         data: {
             labels: chartData.labels,
             datasets: [{
                 label: 'Quantidade de Atividades',
                 data: chartData.activities,
-                backgroundColor: '#152AB3',
+                backgroundColor: primaryColor,
                 borderRadius: 5,
                 barPercentage: 0.7
             }]
@@ -83,15 +110,19 @@ function updateCharts(chartData) {
                         stepSize: 1,
                         callback: function(value) {
                             return value;
-                        }
+                        },
+                        color: textColor
                     },
                     grid: {
                         color: function(context) {
-                            return context.tick.value === 0 ? 'transparent' : 'rgba(0,0,0,0.1)';
+                            return context.tick.value === 0 ? 'transparent' : gridColor;
                         }
                     }
                 },
                 x: {
+                    ticks: {
+                        color: textColor
+                    },
                     grid: {
                         display: false
                     }
@@ -100,20 +131,20 @@ function updateCharts(chartData) {
         }
     });
 
-    // Gráfico de horas
+    // Gráfico de horas (linha)
     const hoursCtx = document.getElementById('hoursChart').getContext('2d');
-    new Chart(hoursCtx, {
+    hoursChart = new Chart(hoursCtx, {
         type: 'line',
         data: {
             labels: chartData.labels,
             datasets: [{
                 label: 'Horas Trabalhadas',
                 data: chartData.hours,
-                borderColor: '#152AB3',
-                backgroundColor: 'rgba(21, 42, 179, 0.1)',
+                borderColor: primaryColor,
+                backgroundColor: bgColor,
                 borderWidth: 3,
-                pointBackgroundColor: '#152AB3',
-                pointBorderColor: '#fff',
+                pointBackgroundColor: primaryColor,
+                pointBorderColor: isDarkTheme ? '#2d2d2d' : '#fff',
                 pointBorderWidth: 2,
                 pointRadius: 5,
                 pointHoverRadius: 7,
@@ -145,15 +176,19 @@ function updateCharts(chartData) {
                     ticks: {
                         callback: function(value) {
                             return value + 'h';
-                        }
+                        },
+                        color: textColor
                     },
                     grid: {
                         color: function(context) {
-                            return context.tick.value === 0 ? 'transparent' : 'rgba(0,0,0,0.1)';
+                            return context.tick.value === 0 ? 'transparent' : gridColor;
                         }
                     }
                 },
                 x: {
+                    ticks: {
+                        color: textColor
+                    },
                     grid: {
                         display: false
                     }
@@ -161,6 +196,20 @@ function updateCharts(chartData) {
             }
         }
     });
+}
+
+// Função para recarregar os gráficos quando o tema mudar
+async function reloadChartsWithNewTheme() {
+    try {
+        const response = await fetch('api/api_dashboard.php');
+        const data = await response.json();
+        
+        if (data.success && data.charts) {
+            updateCharts(data.charts);
+        }
+    } catch (error) {
+        console.error('Erro ao recarregar gráficos:', error);
+    }
 }
 
 function updateRecentActivities(activities) {
@@ -199,39 +248,38 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function setupThemeToggle() {
-    const toggle = document.getElementById('theme-toggle');
-    
-    toggle.addEventListener('click', async () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'escuro' ? 'claro' : 'escuro';
-        
-        try {
-            await fetch('api/api_dashboard.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ theme: newTheme })
-            });
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-        } catch (error) {
-            console.error('Erro ao alterar tema:', error);
-        }
-    });
-}
-
 function setupMobileMenu() {
     const toggle = document.getElementById('nav-toggle');
     const menu = document.querySelector('.nav-menu');
     
-    toggle.addEventListener('click', () => {
-        menu.classList.toggle('active');
-    });
+    if (toggle && menu) {
+        toggle.addEventListener('click', () => {
+            menu.classList.toggle('active');
+        });
+    }
 }
 
 function showError(message) {
-    // Implementar notificação de erro
     console.error(message);
+    // Criar notificação de erro visual
+    const notification = document.createElement('div');
+    notification.className = 'notification error';
+    notification.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
+    }, 3000);
 }
