@@ -1,2 +1,4 @@
 # Controle de Horas
 Este é um projeto desenvolvido em PHP, CSS e JavaScript. O objetivo é possibilitar ao usuário um controle melhor de suas horas trabalhadas, podendo lançar as tarefas realizadas, horas trabalhadas, informar qual o cliente, além de ter acesso à um dashboard de resumo completo.
+<h2>Visualize o projeto</h2>
+(https://controledehoras.wuaze.com)
