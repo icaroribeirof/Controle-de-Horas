@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardData();
-    setupMobileMenu();
     
     // Escutar mudanças de tema disparadas pelo menu.php
     window.addEventListener('tema-alterado', function(e) {
@@ -248,16 +247,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function setupMobileMenu() {
-    const toggle = document.getElementById('nav-toggle');
-    const menu = document.querySelector('.nav-menu');
-    
-    if (toggle && menu) {
-        toggle.addEventListener('click', () => {
-            menu.classList.toggle('active');
-        });
-    }
-}
 
 function showError(message) {
     console.error(message);
