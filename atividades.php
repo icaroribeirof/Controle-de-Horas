@@ -132,6 +132,74 @@ $data_atual = date('Y-m-d');
             </div>
         </div>
 
+        <!-- Modal de Visualização (somente leitura) -->
+        <div class="view-modal" id="view-modal">
+            <div class="view-modal-content">
+                <div class="view-modal-header">
+                    <div class="view-modal-title">
+                        <i class="fas fa-eye"></i>
+                        <h2>Detalhes da Atividade</h2>
+                    </div>
+                    <button class="view-modal-close">&times;</button>
+                </div>
+                <div class="view-modal-body">
+                    <!-- Atividade + Cliente -->
+                    <div class="view-info-grid">
+                        <div class="view-info-card highlight">
+                            <span class="view-info-label">
+                                <i class="fas fa-tag"></i> Atividade
+                            </span>
+                            <span class="view-info-value" id="view-nome-atividade">—</span>
+                        </div>
+                        <div class="view-info-card">
+                            <span class="view-info-label">
+                                <i class="fas fa-building"></i> Cliente
+                            </span>
+                            <span class="view-info-value" id="view-nome-cliente">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Data / Horários / Duração -->
+                    <div class="view-time-row">
+                        <div class="view-time-card">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span class="view-time-label">Data</span>
+                            <span class="view-time-value" id="view-data">—</span>
+                        </div>
+                        <div class="view-time-card">
+                            <i class="fas fa-play-circle"></i>
+                            <span class="view-time-label">Início</span>
+                            <span class="view-time-value" id="view-hora-inicio">—</span>
+                        </div>
+                        <div class="view-time-card">
+                            <i class="fas fa-stop-circle"></i>
+                            <span class="view-time-label">Fim</span>
+                            <span class="view-time-value" id="view-hora-fim">—</span>
+                        </div>
+                        <div class="view-time-card duration">
+                            <i class="fas fa-clock"></i>
+                            <span class="view-time-label">Duração</span>
+                            <span class="view-time-value" id="view-duracao">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Observações (oculto se vazio) -->
+                    <div class="view-obs-wrap" id="view-obs-wrap">
+                        <span class="view-info-label">
+                            <i class="fas fa-sticky-note"></i> Observações
+                        </span>
+                        <p class="view-obs-text" id="view-observacoes"></p>
+                    </div>
+                </div>
+                <div class="view-modal-footer">
+                    <button class="btn-fechar-view" id="btn-fechar-view">
+                        <i class="fas fa-times"></i>
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Filtros -->
         <div class="filtros-container">
             <div class="filtros-grid">

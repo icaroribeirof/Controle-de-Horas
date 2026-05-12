@@ -31,11 +31,11 @@ function setupEventListeners() {
         openModal();
     });
 
-    // Fechar modal
+    // Fechar modal de edição
     document.querySelector('.modal-close').addEventListener('click', closeModal);
     document.getElementById('btn-cancelar').addEventListener('click', closeModal);
 
-    // Clique fora do modal
+    // Clique fora do modal de edição
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
             closeModal();
@@ -67,6 +67,15 @@ function setupEventListeners() {
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('confirm-modal')) {
             closeConfirmModal();
+        }
+    });
+
+    // Modal de visualização
+    document.getElementById('btn-fechar-view').addEventListener('click', closeViewModal);
+    document.querySelector('.view-modal-close').addEventListener('click', closeViewModal);
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('view-modal')) {
+            closeViewModal();
         }
     });
 }
@@ -135,6 +144,9 @@ function renderAtividades(atividades) {
             <td>${atividade.hora_fim.substr(0,5)}</td>
             <td>${calculateDuration(atividade.hora_inicio, atividade.hora_fim)}</td>
             <td>
+                <button class="acao-btn visualizar" onclick="viewAtividade(${atividade.id})" title="Visualizar">
+                    <i class="fas fa-eye"></i>
+                </button>
                 <button class="acao-btn editar" onclick="editAtividade(${atividade.id})" title="Editar">
                     <i class="fas fa-edit"></i>
                 </button>
@@ -276,6 +288,48 @@ function validateHours() {
         return false;
     }
     return true;
+}
+
+async function viewAtividade(id) {
+    try {
+        const response = await fetch(`api/api_atividades.php?id=${id}`);
+        const data = await response.json();
+
+        if (data.success) {
+            openViewModal(data.atividade);
+        } else {
+            showNotification('Erro ao carregar atividade', 'error');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro de conexão', 'error');
+    }
+}
+
+function openViewModal(atividade) {
+    const modal = document.getElementById('view-modal');
+
+    document.getElementById('view-nome-atividade').textContent  = atividade.nome_atividade  || '—';
+    document.getElementById('view-nome-cliente').textContent   = atividade.nome_cliente    || '—';
+    document.getElementById('view-data').textContent           = formatDate(atividade.data_execucao);
+    document.getElementById('view-hora-inicio').textContent    = atividade.hora_inicio ? atividade.hora_inicio.substr(0,5) : '—';
+    document.getElementById('view-hora-fim').textContent       = atividade.hora_fim    ? atividade.hora_fim.substr(0,5)    : '—';
+    document.getElementById('view-duracao').textContent        = calculateDuration(atividade.hora_inicio, atividade.hora_fim);
+
+    const obsEl = document.getElementById('view-observacoes');
+    const obsWrap = document.getElementById('view-obs-wrap');
+    if (atividade.observacoes && atividade.observacoes.trim() !== '') {
+        obsEl.textContent = atividade.observacoes;
+        obsWrap.style.display = '';
+    } else {
+        obsWrap.style.display = 'none';
+    }
+
+    modal.classList.add('show');
+}
+
+function closeViewModal() {
+    document.getElementById('view-modal').classList.remove('show');
 }
 
 async function editAtividade(id) {
@@ -452,6 +506,7 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-window.editAtividade = editAtividade;
+window.editAtividade  = editAtividade;
+window.viewAtividade  = viewAtividade;
 window.openDeleteModal = openDeleteModal;
-window.changePage = changePage;
+window.changePage     = changePage;
