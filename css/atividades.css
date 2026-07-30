@@ -18,6 +18,7 @@
     margin-bottom: 1.5rem;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
+    width: 100%;
 }
 
 .filtros-grid {
@@ -60,6 +61,7 @@
     border: 1px solid var(--border-color);
     overflow: hidden; /* For rounded corners on the table */
     overflow-x: auto;
+    width: 100%;
 }
 
 .atividades-table {
@@ -110,10 +112,17 @@
     color: var(--primary);
 }
 
-/* Table Loading State */
+/* Table Loading State & Empty State */
 .loading-cell {
-    text-align: center;
-    padding: 4rem !important;
+    text-align: center !important;
+    padding: 4rem 1.5rem !important;
+    color: var(--text-tertiary);
+    font-size: 0.9375rem;
+    vertical-align: middle;
+}
+
+.loading-cell .spinner {
+    margin: 0 auto;
 }
 
 /* Action Buttons in Table */
@@ -475,8 +484,6 @@
         grid-template-columns: 1fr;
     }
     
-    }
-    
     .view-info-grid, .view-time-row {
         grid-template-columns: 1fr;
     }
@@ -486,8 +493,8 @@
     .atividades-table thead, 
     .atividades-table tbody, 
     .atividades-table th, 
-    .atividades-table td, 
-    .atividades-table tr,
+    .atividades-table td:not(.loading-cell), 
+    .atividades-table tr:not(.loading-cell),
     .atividades-table tfoot { 
         display: block; 
     }
@@ -498,14 +505,14 @@
         left: -9999px;
     }
     
-    .atividades-table tr { 
+    .atividades-table tbody tr:not(.loading-cell) { 
         border: 1px solid var(--border-color);
         border-radius: var(--radius-md);
         margin-bottom: 1rem;
         background: var(--bg-surface);
     }
     
-    .atividades-table td { 
+    .atividades-table td:not(.loading-cell) { 
         border: none;
         border-bottom: 1px solid var(--border-color); 
         position: relative;
@@ -516,7 +523,7 @@
         text-align: right;
     }
     
-    .atividades-table td:before { 
+    .atividades-table td:not(.loading-cell):before { 
         content: attr(data-label);
         position: absolute;
         left: 1rem;
@@ -527,8 +534,14 @@
         letter-spacing: 0.05em;
     }
     
-    .atividades-table td:last-child {
+    .atividades-table td:not(.loading-cell):last-child {
         border-bottom: 0;
+    }
+
+    .atividades-table td.loading-cell {
+        display: table-cell !important;
+        text-align: center !important;
+        padding: 4rem 1.5rem !important;
     }
 
     .acoes-cell {

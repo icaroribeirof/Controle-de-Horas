@@ -100,7 +100,7 @@ function setupAutoFilters() {
 
 async function loadAtividades(page = 1, filters = {}) {
     const tbody = document.getElementById('atividades-tbody');
-    tbody.innerHTML = '保持<td colspan="7" class="loading-cell"><div class="loading-spinner"></div>';
+    tbody.innerHTML = '<tr><td colspan="7" class="loading-cell"><div class="spinner"></div></td></tr>';
 
     try {
         const queryParams = new URLSearchParams({
@@ -131,7 +131,7 @@ function renderAtividades(atividades) {
     const tbody = document.getElementById('atividades-tbody');
 
     if (!atividades || atividades.length === 0) {
-        tbody.innerHTML = '保持<td colspan="7" class="loading-cell">Nenhuma atividade encontrada';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">Nenhuma atividade encontrada</td></tr>';
         return;
     }
 

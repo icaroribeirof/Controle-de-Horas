@@ -340,6 +340,8 @@ ul {
     padding: 2.5rem 3rem 1.5rem;
     background: transparent;
     z-index: 10;
+    max-width: 1400px;
+    width: 100%;
 }
 
 .page-title {
