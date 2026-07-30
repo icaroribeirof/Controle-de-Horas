@@ -137,23 +137,25 @@ function renderAtividades(atividades) {
 
     tbody.innerHTML = atividades.map(atividade => `
         <tr>
-            <td>${escapeHtml(atividade.nome_atividade)}</td>
-            <td>${escapeHtml(atividade.nome_cliente)}</td>
-            <td>${formatDate(atividade.data_execucao)}</td>
-            <td>${atividade.hora_inicio.substr(0,5)}</td>
-            <td>${atividade.hora_fim.substr(0,5)}</td>
-            <td>${calculateDuration(atividade.hora_inicio, atividade.hora_fim)}</td>
-            <td>
-                <button class="acao-btn visualizar" onclick="viewAtividade(${atividade.id})" title="Visualizar">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="acao-btn editar" onclick="editAtividade(${atividade.id})" title="Editar">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="acao-btn excluir" onclick="openDeleteModal(${atividade.id})" title="Excluir">
-                    <i class="fas fa-trash"></i>
-                </button>
-              </td>
+            <td data-label="Atividade">${escapeHtml(atividade.nome_atividade)}</td>
+            <td data-label="Cliente">${escapeHtml(atividade.nome_cliente)}</td>
+            <td data-label="Data">${formatDate(atividade.data_execucao)}</td>
+            <td data-label="Início">${atividade.hora_inicio.substr(0,5)}</td>
+            <td data-label="Fim">${atividade.hora_fim.substr(0,5)}</td>
+            <td data-label="Duração">${calculateDuration(atividade.hora_inicio, atividade.hora_fim)}</td>
+            <td data-label="Ações">
+                <div class="acoes-cell">
+                    <button class="acao-btn visualizar" onclick="viewAtividade(${atividade.id})" title="Visualizar">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="acao-btn editar" onclick="editAtividade(${atividade.id})" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="acao-btn excluir" onclick="openDeleteModal(${atividade.id})" title="Excluir">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
          </tr>
     `).join('');
 }

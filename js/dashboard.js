@@ -68,10 +68,13 @@ function updateCharts(chartData) {
 
     // Obter as cores baseadas no tema atual
     const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'escuro';
-    const primaryColor = isDarkTheme ? '#4a6cf7' : '#152AB3';
-    const bgColor = isDarkTheme ? 'rgba(74, 108, 247, 0.1)' : 'rgba(21, 42, 179, 0.1)';
-    const gridColor = isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-    const textColor = isDarkTheme ? '#e0e0e0' : '#666';
+    const primaryColor = isDarkTheme ? '#6366f1' : '#4f46e5';
+    const bgColor = isDarkTheme ? 'rgba(99, 102, 241, 0.15)' : 'rgba(79, 70, 229, 0.15)';
+    const gridColor = isDarkTheme ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+    const textColor = isDarkTheme ? '#9ca3af' : '#6b7280';
+    const tooltipBg = isDarkTheme ? '#1f2937' : '#ffffff';
+    const tooltipText = isDarkTheme ? '#f3f4f6' : '#111827';
+    const tooltipBorder = isDarkTheme ? '#374151' : '#e5e7eb';
 
     // Gráfico de atividades (barras)
     const activitiesCtx = document.getElementById('activitiesChart').getContext('2d');
@@ -83,8 +86,9 @@ function updateCharts(chartData) {
                 label: 'Quantidade de Atividades',
                 data: chartData.activities,
                 backgroundColor: primaryColor,
-                borderRadius: 5,
-                barPercentage: 0.7
+                borderRadius: 4,
+                barPercentage: 0.5,
+                categoryPercentage: 0.5
             }]
         },
         options: {
@@ -95,6 +99,14 @@ function updateCharts(chartData) {
                     display: false
                 },
                 tooltip: {
+                    backgroundColor: tooltipBg,
+                    titleColor: tooltipText,
+                    bodyColor: tooltipText,
+                    borderColor: tooltipBorder,
+                    borderWidth: 1,
+                    padding: 12,
+                    boxPadding: 6,
+                    usePointStyle: true,
                     callbacks: {
                         label: function(context) {
                             return `${context.raw} atividade${context.raw !== 1 ? 's' : ''}`;
@@ -105,25 +117,26 @@ function updateCharts(chartData) {
             scales: {
                 y: {
                     beginAtZero: true,
+                    border: { display: false },
                     ticks: {
                         stepSize: 1,
-                        callback: function(value) {
-                            return value;
-                        },
-                        color: textColor
+                        color: textColor,
+                        font: { family: "'Inter', sans-serif", size: 12 }
                     },
                     grid: {
-                        color: function(context) {
-                            return context.tick.value === 0 ? 'transparent' : gridColor;
-                        }
+                        color: gridColor,
+                        drawBorder: false,
                     }
                 },
                 x: {
+                    border: { display: false },
                     ticks: {
-                        color: textColor
+                        color: textColor,
+                        font: { family: "'Inter', sans-serif", size: 12 }
                     },
                     grid: {
-                        display: false
+                        display: false,
+                        drawBorder: false
                     }
                 }
             }
@@ -141,12 +154,12 @@ function updateCharts(chartData) {
                 data: chartData.hours,
                 borderColor: primaryColor,
                 backgroundColor: bgColor,
-                borderWidth: 3,
-                pointBackgroundColor: primaryColor,
-                pointBorderColor: isDarkTheme ? '#2d2d2d' : '#fff',
+                borderWidth: 2,
+                pointBackgroundColor: tooltipBg,
+                pointBorderColor: primaryColor,
                 pointBorderWidth: 2,
-                pointRadius: 5,
-                pointHoverRadius: 7,
+                pointRadius: 4,
+                pointHoverRadius: 6,
                 tension: 0.4,
                 fill: true
             }]
@@ -154,11 +167,21 @@ function updateCharts(chartData) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
             plugins: {
                 legend: {
                     display: false
                 },
                 tooltip: {
+                    backgroundColor: tooltipBg,
+                    titleColor: tooltipText,
+                    bodyColor: tooltipText,
+                    borderColor: tooltipBorder,
+                    borderWidth: 1,
+                    padding: 12,
                     callbacks: {
                         label: function(context) {
                             const hours = context.raw;
@@ -172,24 +195,28 @@ function updateCharts(chartData) {
             scales: {
                 y: {
                     beginAtZero: true,
+                    border: { display: false },
                     ticks: {
                         callback: function(value) {
                             return value + 'h';
                         },
-                        color: textColor
+                        color: textColor,
+                        font: { family: "'Inter', sans-serif", size: 12 }
                     },
                     grid: {
-                        color: function(context) {
-                            return context.tick.value === 0 ? 'transparent' : gridColor;
-                        }
+                        color: gridColor,
+                        drawBorder: false
                     }
                 },
                 x: {
+                    border: { display: false },
                     ticks: {
-                        color: textColor
+                        color: textColor,
+                        font: { family: "'Inter', sans-serif", size: 12 }
                     },
                     grid: {
-                        display: false
+                        display: false,
+                        drawBorder: false
                     }
                 }
             }
