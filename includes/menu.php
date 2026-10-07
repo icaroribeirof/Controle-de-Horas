@@ -91,7 +91,6 @@ $iniciais = strtoupper(substr($nome_parts[0], 0, 1) . (isset($nome_parts[1]) ? s
 
             <div class="sidebar-footer">
                 <div class="user-profile">
-                    <div class="user-avatar"><?php echo htmlspecialchars($iniciais); ?></div>
                     <div class="user-info">
                         <span class="user-name" title="<?php echo htmlspecialchars($_SESSION['usuario_nome'] ?? ''); ?>">
                             <?php 
@@ -99,7 +98,7 @@ $iniciais = strtoupper(substr($nome_parts[0], 0, 1) . (isset($nome_parts[1]) ? s
                                 echo htmlspecialchars(strlen($primeiroNome) > 12 ? substr($primeiroNome, 0, 10).'...' : $primeiroNome); 
                             ?>
                         </span>
-                        <span class="user-role">Membro</span>
+                        <span class="user-role">Usuário</span>
                     </div>
                 </div>
                 <div style="display: flex; gap: 2px;">

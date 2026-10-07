@@ -34,6 +34,36 @@
     margin-bottom: 0;
 }
 
+/* Date Picker Component (Ajustes de Tema no Seletor de Datas) */
+.filtro-group input[type="date"],
+.form-group input[type="date"] {
+    color-scheme: light;
+}
+
+.filtro-group input[type="date"]::-webkit-calendar-picker-indicator,
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    padding: 2px;
+    opacity: 0.75;
+    transition: opacity var(--transition-fast), filter var(--transition-fast);
+}
+
+.filtro-group input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+[data-theme="escuro"] .filtro-group input[type="date"],
+[data-theme="escuro"] .form-group input[type="date"] {
+    color-scheme: dark;
+}
+
+[data-theme="escuro"] .filtro-group input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="escuro"] .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.95;
+}
+
 .filtros-grid .filtro-group.actions {
     flex: 0 0 auto;
 }
